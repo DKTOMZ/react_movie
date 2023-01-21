@@ -73,6 +73,12 @@ const HomePage = () => {
         document.getElementById('error').innerHTML = text;
     };
 
+    const handleKeyDown = event => {
+        if (event.key === 'Enter') {
+            searchMovie(searchInput);
+        }
+      };
+
     return (
         <div className="App">
             <section className="AppTitle">
@@ -80,7 +86,7 @@ const HomePage = () => {
                 <img src={Videoicon} alt="Video Icon"/>
             </section>
             <section className="Search">
-                <input type={'text'} placeholder="Search a movie..." onChange={(e)=>setSearchInput(e.target.value)}></input>
+                <input type={'text'} onKeyDown={handleKeyDown} placeholder="Search a movie..." onChange={(e)=>setSearchInput(e.target.value)}></input>
                 <img onClick={()=>searchMovie(searchInput)} src={Searchicon} alt="Search Icon"/>
             </section>
             <div id="status" style={{color:"red", fontSize: '26px', marginBottom: '20px'}}></div>
