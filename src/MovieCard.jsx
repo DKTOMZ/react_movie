@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import NoPosterImage from "./assets/noposter.png";
 
 const MovieCard = (props) => {
     const navigate = useNavigate();
@@ -12,7 +13,7 @@ const MovieCard = (props) => {
 
     const checkPoster = () => {
         if (!poster_path) {
-            return `https://via.placeholder.com/400?text=NOPOSTER`;
+            return NoPosterImage;
         }
         return `https://image.tmdb.org/t/p/original${poster_path}`;
     }

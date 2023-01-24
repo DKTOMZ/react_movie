@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useLocation} from "react-router-dom";
+import NoPosterImage from "../assets/noposter.png";
 
 const InfoPage = () => {
     const { state } = useLocation();
@@ -8,7 +9,7 @@ const InfoPage = () => {
     
     const checkPoster = () => {
         if (!poster_path) {
-            return `https://via.placeholder.com/400?text=NOPOSTER`;
+            return NoPosterImage;
         }
         return `https://image.tmdb.org/t/p/original${poster_path}`;
     }

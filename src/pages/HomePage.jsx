@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import MovieCard from "../MovieCard";
 import Videoicon from '../assets/movie.svg';
 import Searchicon from '../assets/search.svg';
@@ -17,19 +17,14 @@ const HomePage = () => {
             }
         
             try {
-              // Get from local storage by key
               const item = window.sessionStorage.getItem(key);
-              // Parse stored json or if none return initialValue
               return item ? JSON.parse(item) : initialValue;
             } catch (error) {
-              // If error also return initialValue
-              console.log(error);
               return initialValue;
             }
           });
 
-        // Return a wrapped version of useState's setter function that ...
-        // ... persists the new value to localStorage.
+          
         const setValue = (value) => {
         try {
         // Allow value to be a function so we have same API as useState
@@ -43,11 +38,46 @@ const HomePage = () => {
         }
         } catch (error) {
         // A more advanced implementation would handle the error case
-        console.log(error);
         }
   };
 
   return [storedValue, setValue];
+    }
+
+    let status = useRef(null);
+    let error = useRef(null);
+
+    const handleKeyDown = event => {
+        if (event.key === 'Enter') {
+            inputValidation(searchInput);
+        }
+    };
+
+    const showErrors = (statusText,errorText) => {
+        status.current.innerHTML = statusText;
+        error.current.innerHTML = errorText;
+        status.current.style.display = 'block';
+        error.current.style.display = 'block';
+    };
+
+    const clearErrors = () => {
+        status.current.style.display = 'none';
+        error.current.style.display = 'none';
+    }
+
+    const inputValidation = (input) => {
+        if (!input?.trim()) {
+            showErrors('Invalid input', 'Search text is empty');
+            return;
+        }
+        else if (input[0] === '#' || input[0] === '+') {
+            showErrors('Invalid input', 'Search should not begin with # or +');
+            return;
+        }
+        else {
+        clearErrors();
+        searchMovie(input);
+        }
     }
     
     const searchMovie = async(title) => {
@@ -57,27 +87,16 @@ const HomePage = () => {
             response = await fetch(encodeURI(`${API_URL}&query=${title}&include_adult=false`));
             if (response.status >= 200 && response.status <= 299) {
                 data = await response.json();
-              } else {
-                return handleFetchError(response.status, response.statusText);
               }
         } catch (error) {
-            return handleFetchError('Network Error', error.message);
+            return showErrors('Network Error', error.message);
         }
-        document.getElementById('status').style.display = 'none';
-        document.getElementById('error').style.display = 'none';
-        setMovies(data.results);
+        saveData(data);
     }
 
-    const handleFetchError = (status,text) => {
-        document.getElementById('status').innerHTML = status;
-        document.getElementById('error').innerHTML = text;
+    const saveData = (data) => {
+        setMovies(data.results);
     };
-
-    const handleKeyDown = event => {
-        if (event.key === 'Enter') {
-            searchMovie(searchInput);
-        }
-      };
 
     return (
         <div className="App">
@@ -86,11 +105,11 @@ const HomePage = () => {
                 <img src={Videoicon} alt="Video Icon"/>
             </section>
             <section className="Search">
-                <input type={'text'} onKeyDown={handleKeyDown} placeholder="Search a movie..." onChange={(e)=>setSearchInput(e.target.value)}></input>
-                <img onClick={()=>searchMovie(searchInput)} src={Searchicon} alt="Search Icon"/>
+                <input type={'text'} onKeyDown={handleKeyDown} placeholder="Search a movie..." onChange={(e)=>setSearchInput(e.target.value)} required/>
+                <img onClick={()=>inputValidation(searchInput)} src={Searchicon} alt="Search Icon"/>
             </section>
-            <div id="status" style={{color:"red", fontSize: '26px', marginBottom: '20px'}}></div>
-            <div id="error" style={{color:"white", marginBottom: '40px'}}></div>
+            <div ref={status} style={{color:"red", fontSize: '26px', marginBottom: '20px'}}></div>
+            <div ref={error} style={{color:"white", marginBottom: '40px'}}></div>
             <section className="movies">
                 <div className="Movies">
                     {movies 
